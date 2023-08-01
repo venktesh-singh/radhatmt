@@ -16,11 +16,12 @@ const sliderSchema = new mongooose.Schema({
         type: String,
     },
     position:{
-        type:String
+        type:Number     
     },
-    active:
-    {    
-        type: Boolean   
+    active: {
+        type: String,
+        enum: ['active', 'inactive'],
+        default: 'active',
     },
 
 }, {

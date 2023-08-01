@@ -13,11 +13,12 @@ const approvalSchema = new mongooose.Schema({
         type: String,
     },  
     position:{
-        type:String
+        type:Number     
     },
-    status:
-    {    
-        type: Boolean   
+    active: {
+        type: String,
+        enum: ['active', 'inactive'],
+        default: 'active',
     },
 
 }, {

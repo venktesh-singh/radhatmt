@@ -6,15 +6,15 @@ const bcrypt = require('bcrypt');
 module.exports.addslider = async function (req, res) {
   console.log(req.body);
   const { name, alt_tag, active } = req.body; 
-  const slider_pic = req.file.filename;
-  const m_slider_pic = req.file.filename;
+  const slider_pic = req.files['slider_pic'][0].filename;
+  const m_slider_pic = req.files['m_slider_pic'][0].filename;
 
   if (!name || !slider_pic) {
     return res.status(422).json({ error: "Please fill the fields properly" });
   }
 
   try {
-    
+
     const maxPositionSlider = await Slider.findOne().sort({ position: -1 });
     const position = maxPositionSlider ? maxPositionSlider.position + 1 : 1;
     const slider = new Slider({
@@ -67,33 +67,29 @@ module.exports.update_slider = async function (req, res) {
   try {
     const _id = req.params.id;
     let updateData = req.body;
-
-    if (req.file) {
-      
-      const slider_pic = req.file.filename;
-      updateData.slider_pic = slider_pic;
-
-      const m_slider_pic = req.file.filename;
-      updateData.m_slider_pic = m_slider_pic;
+    console.log("Received Data", req.body);
+    if (req.files) {
+      updateData.slider_pic = req.files['slider_pic'][0].filename;
+      updateData.m_slider_pic = req.files['m_slider_pic'][0].filename;
     }
 
     const status = updateData.active === 'active' ? 'active' : 'inactive';
     updateData.status = status;
 
     if (typeof updateData.position !== 'undefined') {
-      
       const maxPositionSlider = await Slider.findOne().sort({ position: -1 });
       const newPosition = maxPositionSlider ? maxPositionSlider.position + 1 : 1;
-
-    if (newPosition !== updateData.position) {
-        updateData.position = newPosition;
+    
+      const positionValue = parseInt(updateData.position, 10); // Convert 'position' to an integer
+    
+      if (!isNaN(positionValue) && newPosition !== positionValue) {
+        updateData.position = positionValue;
       }
     }
-
-    const slider = await Slider.findByIdAndUpdate(_id, updateData, {
-      new: true
-    });
-
+    
+    console.log("Show Data",updateData);
+    const slider = await Slider.findByIdAndUpdate(_id, updateData, { new: true });
+    
     res.send(slider);
   } catch (e) {
     res.status(500).send(e);

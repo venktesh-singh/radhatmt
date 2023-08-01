@@ -4,26 +4,30 @@ const bcrypt = require('bcrypt');
 
 module.exports.addapproval = async function (req, res) {    
     console.log(req.body);
-    const { name, alt_tag, action, status } = req.body;
+    const { name, alt_tag, active } = req.body;
     const   approval_pic= req.file.filename;
     if (!name || !approval_pic) {
         return res.status(422).json({ erorr: "Please filled the fild properly" });  
     } try {
+        const maxPositionApproval = await Approval.findOne().sort({ position: -1 });
+        const position = maxPositionApproval ? maxPositionApproval.position + 1 : 1;
         const approval = new Approval({
             name,
             approval_pic,
             alt_tag,  
-            action,
-            status,
+            position,
+            active,
         });  
-            await approval.save();
-            res.status(201).send({ message: "Add Accreditations Approval Successfully.", status: 201 });
-        
+
+        const status = active === 'active' ? 'active' : 'inactive';
+        approval.status = status;
+        await approval.save();
+        res.status(201).send({ message: "Add Accreditations Approval Successfully.", status: 201 });
     } catch (err) {
         console.log(err);
 
     }
-};
+};  
 
 module.exports.getapproval = async function (req, res) {
     try {
@@ -54,6 +58,20 @@ module.exports.update_approval = async function (req, res) {
             // Handle image upload and update the 'qpm_pic' field
             const approval_pic = req.file.filename;
             updateData.approval_pic = approval_pic;
+        }
+
+        const status = updateData.active === 'active' ? 'active' : 'inactive';
+        updateData.status = status;
+    
+        if (typeof updateData.position !== 'undefined') {
+          const maxPositionApproval = await Approval.findOne().sort({ position: -1 });
+          const newPosition = maxPositionApproval ? maxPositionApproval.position + 1 : 1;
+        
+          const positionValue = parseInt(updateData.position, 10); // Convert 'position' to an integer
+        
+          if (!isNaN(positionValue) && newPosition !== positionValue) {
+            updateData.position = positionValue;
+          }
         }
 
         const approval = await Approval.findByIdAndUpdate(_id, updateData, {

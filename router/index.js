@@ -29,7 +29,7 @@ const approvalController = require('../controller/approval');
 const homeController = require('../controller/home');
 
 // ************************Route for user**************************
-router.post('/user/login', userController.login);
+router.post('/user/login', userController.login);  
 router.get('/user/get_users', userController.getUsers);
 router.get('/user/get_user_id/:id', userController.get_user_id);
 router.patch('/user/update_user/:id', userController.update_user);
@@ -45,10 +45,10 @@ router.patch('/product/update_product/:id', productController.update_product);
 router.delete('/product/delete_product/:id', productController.delete_product);  
 
 // ************************ Route for Slider **************************
-router.post('/slider/addslider', upload.single('slider_pic','m_slider_pic'), sliderController.addslider); 
+router.post('/slider/addslider', upload.fields([{ name: 'slider_pic', maxCount: 1 },{ name: 'm_slider_pic', maxCount: 1 }]), sliderController.addslider);  
 router.get('/slider/getslider', sliderController.getslider); 
 router.get('/slider/get_slider_id/:id', sliderController.get_slider_id); 
-router.patch('/slider/update_slider/:id',  upload.single('slider_pic'), sliderController.update_slider);    
+router.patch('/slider/update_slider/:id',upload.fields([{ name: 'slider_pic', maxCount: 1 },{ name: 'm_slider_pic', maxCount: 1 },]),sliderController.update_slider);       
 router.delete('/slider/delete_slider/:id', sliderController.delete_slider);  
 
 
@@ -113,10 +113,12 @@ router.patch('/approval/update_approval/:id',  upload.single('approval_pic'), ap
 router.delete('/approval/delete_approval/:id', approvalController.delete_approval); 
 
 // ************************ Route for Home **************************
-router.post('/home/addhome', upload.single('home_pic','about_pic'), homeController.addhome);    
+router.post('/home/addhome', upload.fields([{ name: 'home_pic', maxCount: 1 },{ name: 'about_pic', maxCount: 1 }]), homeController.addhome);    
 router.get('/home/gethome', homeController.gethome); 
 router.get('/home/get_home_id/:id', homeController.get_home_id); 
-router.patch('/home/update_home/:id',  upload.single('home_pic','about_pic'), homeController.update_home);    
+router.patch('/home/update_home/:id', upload.fields([{ name: 'home_pic', maxCount: 1 },{ name: 'about_pic', maxCount: 1 },]), homeController.update_home);    
    
+
+
 module.exports = router;       
               
